@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  client:
+    container_name: "sparkplug_web"
+    depends_on:
+      - "server"
+    build: ./client
+    ports:
+      - "3000:$WEB_PORT"
+  server:
+    container_name: "sparkplug_host"
+    restart: unless-stopped
+    command: "./build/home_sparkplug_host $BROKER_ADDRESS"
+    build: ./server
+    ports:
+      - "9000:$WEBSOCKET_PORT"

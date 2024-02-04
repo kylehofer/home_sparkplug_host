@@ -1,0 +1,9 @@
+{
+  "short_name": "Sparkplug Web Client",
+  "name": "A Web Client for Interacting with a Sparkplug Host",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
