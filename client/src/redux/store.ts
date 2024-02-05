@@ -44,7 +44,7 @@ export function isUMetric(object: Metrics | UMetric): object is UMetric {
  * @param propertySet 
  * @returns {UPropertySet} The updated property set
  */
-function updatePropertySet(state: UPropertySet | undefined = {}, propertySet: UPropertySet) : UPropertySet {
+function updatePropertySet(state: UPropertySet | undefined = {}, propertySet: UPropertySet): UPropertySet {
     Object.keys(propertySet).forEach((key) => {
         const value = propertySet[key];
         if (value.value) {
@@ -53,7 +53,7 @@ function updatePropertySet(state: UPropertySet | undefined = {}, propertySet: UP
                 state[key] = updatePropertySet(state[key].value, value.value);
             } else {
                 state[key] = {
-                    
+
                     ...state[key],
                     ...value
                 };
@@ -72,28 +72,27 @@ function updatePropertySet(state: UPropertySet | undefined = {}, propertySet: UP
  * @param input The Metric to update on the Node/Device
  * @returns {Record<string,UMetric>}
  */
-function updateMetric(state: Record<string,UMetric>, input: UMetric): Record<string,UMetric> {
-    const {name} = input;
-    if (!name)
-    {
+function updateMetric(state: Record<string, UMetric>, input: UMetric): Record<string, UMetric> {
+    const { name } = input;
+    if (!name) {
         return state;
     }
 
     if (state[name]) {
         return {
             ...state,
-            [name] : {
+            [name]: {
                 ...state[name],
                 ...input,
                 properties: input.properties ? updatePropertySet(state[name].properties, input.properties) : state[name].properties
-               
+
             }
         };
     }
 
     return {
         ...state,
-        [name] : {
+        [name]: {
             ...input,
         }
     };
@@ -105,7 +104,7 @@ function updateMetric(state: Record<string,UMetric>, input: UMetric): Record<str
  * @param metrics 
  * @returns {Record<string, UMetric>}
  */
-function updateMetrics(state: Record<string,UMetric>, metrics: UMetric[] | null | undefined) : Record<string, UMetric> {
+function updateMetrics(state: Record<string, UMetric>, metrics: UMetric[] | null | undefined): Record<string, UMetric> {
     if (!metrics) {
         return state;
     }
@@ -370,11 +369,10 @@ export function observeGroups(changed: (value: Record<string, Group>) => void) {
  * @returns {Unsubscribe} Function to unsubscribe to the store
  */
 export function observeNodes(group: string, changed: (value: Record<string, Node>) => void) {
-    let lastValue : Record<string, Node>;
+    let lastValue: Record<string, Node>;
     function callback() {
         const nextState = store.getState();
-        if (lastValue !== nextState[group])
-        {
+        if (lastValue !== nextState[group]) {
             lastValue = nextState[group];
             changed(nextState[group]);
         }
@@ -394,18 +392,17 @@ export function observeNodes(group: string, changed: (value: Record<string, Node
  * @returns {Unsubscribe} Function to unsubscribe to the store
  */
 export function observeDevices(group: string, node: string, changed: (value: Record<string, Device>) => void) {
-    let lastValue : Record<string, Device>;
+    let lastValue: Record<string, Device>;
     function callback() {
         const nextState = store.getState();
-        if (lastValue !== nextState[group] && nextState[group][node]?.devices)
-        {
+        if (lastValue !== nextState[group] && nextState[group][node]?.devices) {
             lastValue = nextState[group] && nextState[group][node]?.devices;
             changed(lastValue);
         }
     }
-        
+
     const unsubscribe = store.subscribe(callback);
-        
+
     callback();
     return unsubscribe;
 }
@@ -418,19 +415,18 @@ export function observeDevices(group: string, node: string, changed: (value: Rec
  * @returns {Unsubscribe} Function to unsubscribe to the store
  */
 export function observeNode(group: string, node: string, changed: (value: Node) => void) {
-    let lastValue : Node;
+    let lastValue: Node;
     function callback() {
         const nextState = store.getState();
         if (nextState[group] && nextState[group][node])
-            if (lastValue !== nextState[group][node])
-            {
+            if (lastValue !== nextState[group][node]) {
                 lastValue = nextState[group][node];
                 changed(lastValue);
             }
     }
-        
+
     const unsubscribe = store.subscribe(callback);
-        
+
     callback();
     return unsubscribe;
 }
@@ -444,19 +440,18 @@ export function observeNode(group: string, node: string, changed: (value: Node) 
  * @returns {Unsubscribe} Function to unsubscribe to the store
  */
 export function observeDevice(group: string, node: string, device: string, changed: (value: Device) => void) {
-    let lastValue : Device;
+    let lastValue: Device;
     function callback() {
         const nextState = store.getState();
         if (nextState[group] && nextState[group][node] && nextState[group][node].devices)
-            if (lastValue !== nextState[group][node].devices[device])
-            {
+            if (lastValue !== nextState[group][node].devices[device]) {
                 lastValue = nextState[group][node].devices[device];
                 changed(lastValue);
             }
     }
-        
+
     const unsubscribe = store.subscribe(callback);
-        
+
     callback();
     return unsubscribe;
 }
@@ -471,7 +466,7 @@ declare type MetricsCallback = (value: Record<string, UMetric>) => void;
  * @param changed Callback that'll be fired with the updated Metrics data
  * @returns {Unsubscribe} Function to unsubscribe to the store
  */
-export function observeMetrics(group: string, node: string, device: string, changed: MetricsCallback) : Unsubscribe;
+export function observeMetrics(group: string, node: string, device: string, changed: MetricsCallback): Unsubscribe;
 /**
  * Monitors the Sparkplug Store for any changes done to the Metrics on a Sparkplug Node
  * @param {string} group The group of the device to monitor
@@ -479,7 +474,7 @@ export function observeMetrics(group: string, node: string, device: string, chan
  * @param changed Callback that'll be fired with the updated Metrics data
  * @returns {Unsubscribe} Function to unsubscribe to the store
  */
-export function observeMetrics(group: string, node: string, changed: MetricsCallback) : Unsubscribe;
+export function observeMetrics(group: string, node: string, changed: MetricsCallback): Unsubscribe;
 
 /**
  * Monitors the Sparkplug Store for any changes done to the Metrics on a Sparkplug Node/Device
@@ -489,35 +484,31 @@ export function observeMetrics(group: string, node: string, changed: MetricsCall
  * @param {MetricsCallback} [changed] If present, the callback that'll be fired with the updated Device Metrics data
  * @returns {Unsubscribe} Function to unsubscribe to the store
  */
-export function observeMetrics(group: string, node: string, device: string | MetricsCallback, changed?: MetricsCallback)  : Unsubscribe {
-   
-    let lastValue : Record<string, UMetric>;
+export function observeMetrics(group: string, node: string, device: string | MetricsCallback, changed?: MetricsCallback): Unsubscribe {
+
+    let lastValue: Record<string, UMetric>;
     function callback() {
         const nextState = store.getState();
-        if (nextState[group] && nextState[group][node])
-        {
-            if (typeof device === 'string')
-            {
-                if (nextState[group][node].devices[device] && lastValue !== nextState[group][node].devices[device].metrics)
-                {
+        if (nextState[group] && nextState[group][node]) {
+            if (typeof device === 'string') {
+                if (nextState[group][node].devices[device] && lastValue !== nextState[group][node].devices[device].metrics) {
                     lastValue = nextState[group][node].devices[device].metrics;
                     changed && changed(lastValue);
                 }
             }
             else {
-                if (lastValue !== nextState[group][node].metrics)
-                {
+                if (lastValue !== nextState[group][node].metrics) {
                     lastValue = nextState[group][node].metrics;
                     device(lastValue);
                 }
             }
-            
+
         }
     }
-    
-        
+
+
     const unsubscribe = store.subscribe(callback);
-        
+
     callback();
     return unsubscribe;
 }
@@ -533,7 +524,7 @@ declare type MetricCallback = (value: UMetric) => void;
  * @param changed Callback that'll be fired with the updated Metric data
  * @returns {Unsubscribe} Function to unsubscribe to the store
  */
-export function observeMetric(group: string, node: string, device: string, metric: string, changed: MetricCallback) : Unsubscribe;
+export function observeMetric(group: string, node: string, device: string, metric: string, changed: MetricCallback): Unsubscribe;
 /**
  * Monitors the Sparkplug Store for any changes done to the Metric on a Sparkplug Node
  * @param {string} group The group of the metric to monitor
@@ -542,7 +533,7 @@ export function observeMetric(group: string, node: string, device: string, metri
  * @param changed Callback that'll be fired with the updated Metric data
  * @returns {Unsubscribe} Function to unsubscribe to the store
  */
-export function observeMetric(group: string, node: string, metric: string, changed: MetricCallback) : Unsubscribe;
+export function observeMetric(group: string, node: string, metric: string, changed: MetricCallback): Unsubscribe;
 
 /**
  * Monitors the Sparkplug Store for any changes done to the Metric on a Sparkplug Device
@@ -553,19 +544,16 @@ export function observeMetric(group: string, node: string, metric: string, chang
  * @param {MetricCallback} [changed] If present, the callback that'll be fired with the updated Device Metric data
  * @returns {Unsubscribe} Function to unsubscribe to the store
  */
-export function observeMetric(group: string, node: string, device: string, metric: string | MetricCallback, changed?: MetricCallback)  : Unsubscribe {
-   
-    let lastValue : UMetric;
+export function observeMetric(group: string, node: string, device: string, metric: string | MetricCallback, changed?: MetricCallback): Unsubscribe {
+
+    let lastValue: UMetric;
     function callback() {
         const nextState = store.getState();
-        if (nextState[group] && nextState[group][node])
-        {
-            if (typeof metric === 'string')
-            {
+        if (nextState[group] && nextState[group][node]) {
+            if (typeof metric === 'string') {
                 if (nextState[group][node].devices[device] &&
                     nextState[group][node].devices[device].metrics[metric] &&
-                    lastValue !== nextState[group][node].devices[device].metrics[metric])
-                {
+                    lastValue !== nextState[group][node].devices[device].metrics[metric]) {
                     lastValue = nextState[group][node].devices[device].metrics[metric];
                     changed && changed(lastValue);
                 }
@@ -573,13 +561,12 @@ export function observeMetric(group: string, node: string, device: string, metri
             else {
                 if (nextState[group][node].metrics[device] &&
                     lastValue !== nextState[group][node].metrics[device]
-                )
-                {
+                ) {
                     lastValue = nextState[group][node].metrics[device];
                     metric(lastValue);
                 }
             }
-            
+
         }
     }
 

@@ -6,11 +6,11 @@ services:
       - "server"
     build: ./client
     ports:
-      - "3000:$WEB_PORT"
+      - "$WEB_PORT:3000"
   server:
     container_name: "sparkplug_host"
     restart: unless-stopped
     command: "./build/home_sparkplug_host $BROKER_ADDRESS"
     build: ./server
     ports:
-      - "9000:$WEBSOCKET_PORT"
+      - "$WEBSOCKET_PORT:9000"

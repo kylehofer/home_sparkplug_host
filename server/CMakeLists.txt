@@ -18,13 +18,16 @@ add_executable(home_sparkplug_host ${SOURCES})
 if(CMAKE_BUILD_TYPE STREQUAL Release)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -fPIC")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3 -fPIC")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -fPIC")
 endif()
 
 IF(FETCH_REMOTE)
     FetchContent_Declare(
         cpp_sparkplug_host
         GIT_REPOSITORY https://github.com/kylehofer/cpp_sparkplug_host.git
-        GIT_TAG main
+        GIT_TAG nestedPropertySets
     )
     FetchContent_MakeAvailable(cpp_sparkplug_host)
 
@@ -32,7 +35,7 @@ IF(FETCH_REMOTE)
     FetchContent_Declare(
         websocketpp
         GIT_REPOSITORY https://github.com/zaphoyd/websocketpp.git
-        GIT_TAG 0.8.2
+        GIT_TAG develop
     )
 
     FetchContent_MakeAvailable(websocketpp)

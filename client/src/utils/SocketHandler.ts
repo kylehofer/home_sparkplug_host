@@ -86,7 +86,6 @@ export class SockerHandler {
                             const payload = new Uint8Array(await data.slice(index, index + payloadLength).arrayBuffer());
                             index += payloadLength;
                             decoded = decodePayload(payload);
-
                         } catch (error) {
                             console.log('Error decoding payload for: ' + id);
                             return;
