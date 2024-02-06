@@ -54,6 +54,7 @@ function MetricSubfolder(props: {
                         node={node}
                         device={device}
                         metric={prefix ? `${prefix}/${metric}` : metric}
+                        name={metric}
                     ></MetricAccordion>);
             })}
         </>

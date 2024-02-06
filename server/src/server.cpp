@@ -39,6 +39,7 @@
 #include <tuple>
 
 using std::chrono::duration_cast;
+using std::chrono::milliseconds;
 using std::chrono::seconds;
 using std::chrono::steady_clock;
 
@@ -91,36 +92,38 @@ int main(int argc, char *argv[])
 {
     string SERVER_ADDRESS;
     string CLIENT_ID;
+    string HOST_ID;
 
     {
-        char serverAddress[256];
-        char clientId[256];
-
         if (argc > 1)
         {
-            sprintf(serverAddress, "%s", argv[1]);
+            SERVER_ADDRESS = {argv[1]};
         }
         else
         {
-            sprintf(serverAddress, "tcp://localhost:1883");
+            SERVER_ADDRESS = {"tcp://localhost:1883"};
         }
 
         if (argc > 2)
         {
-            sprintf(clientId, "%s", argv[2]);
+            HOST_ID = {argv[2]};
+        }
+
+        if (argc > 3)
+        {
+            CLIENT_ID = {argv[3]};
         }
         else
         {
+            char clientId[256];
             std::srand(std::time(nullptr));
             int random = std::rand();
             sprintf(clientId, "sparkplug_host_%d", random);
+            CLIENT_ID = {clientId};
         }
-
-        SERVER_ADDRESS = {serverAddress};
-        CLIENT_ID = {clientId};
     }
 
-    SparkplugHost host(SERVER_ADDRESS, CLIENT_ID);
+    SparkplugHost host(SERVER_ADDRESS, CLIENT_ID, HOST_ID);
 
     WebSocketServer server;
 
