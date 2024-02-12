@@ -1,26 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import SocketContext, {SockerHandler} from './utils/SocketHandler';
-import DebugView from './views/DebugVIew';
-import ConfigView from './views/ConfigView';
+import './index.css';
 
-export const socketHandler = new SockerHandler(`ws://${process.env.SPARKPLUG_HOST || location.hostname}:${process.env.WEBSOCKET_PORT || 9000}`);
+const socketHandler = new SockerHandler(`ws://${process.env.SPARKPLUG_HOST || location.hostname}:${process.env.WEBSOCKET_PORT || 9000}`);
+
 socketHandler.connect();
 
-import {
-    createBrowserRouter, RouterProvider
-} from 'react-router-dom';
+import Application from './views/Application';
 
-const router = createBrowserRouter([
-    {
-        path: '/',
-        element: <DebugView/>,
-    },
-    {
-        path: 'config',
-        element: <ConfigView/>,
-    },
-]);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -28,6 +16,6 @@ const root = ReactDOM.createRoot(
 
 root.render(
     <SocketContext.Provider value={socketHandler}>
-        <RouterProvider router={router} />
+        <Application/>
     </SocketContext.Provider>
 );
