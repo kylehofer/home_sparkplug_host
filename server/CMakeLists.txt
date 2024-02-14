@@ -27,7 +27,7 @@ IF(FETCH_REMOTE)
     FetchContent_Declare(
         cpp_sparkplug_host
         GIT_REPOSITORY https://github.com/kylehofer/cpp_sparkplug_host.git
-        GIT_TAG nestedPropertySets
+        GIT_TAG main
     )
     FetchContent_MakeAvailable(cpp_sparkplug_host)
 

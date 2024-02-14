@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import DeviceAccordion from './Device';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { useDevices, usePublisherState } from '../utils/Hooks';
+import { useDevices, usePublisherState, usePublisherTimeStamp } from '../utils/Hooks';
 import { PublisherState } from '../redux/store';
 import TieredMetrics from './TieredMetrics';
 
@@ -21,6 +21,11 @@ function NodeAccordion(props: { node: string, group: string }) {
 
     const devices = useDevices(group, node);
     const state = usePublisherState(group, node);
+    const timestamp = usePublisherTimeStamp(group, node);
+
+    const timeDisplay = useMemo(() => {
+        return new Date(timestamp).toLocaleString();
+    },[timestamp]);
 
     return (
         <Accordion disabled={state === PublisherState.Dead} slotProps={{ transition: { unmountOnExit: true } }}>
@@ -29,6 +34,7 @@ function NodeAccordion(props: { node: string, group: string }) {
                 
             >{node}</AccordionSummary>
             <AccordionDetails>
+                <span>Last Valid Message: {timeDisplay}</span>
                 {devices.length > 0 && <Accordion slotProps={{ transition: { unmountOnExit: true } }}>
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}

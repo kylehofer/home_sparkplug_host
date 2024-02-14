@@ -15,6 +15,7 @@ export interface Subfolder {
 export declare type Metrics = Array<UMetric | Subfolder>;
 
 export interface Device {
+    lastValidMessage: number | Long.Long,
     state: PublisherState,
     metrics: Record<string, UMetric>
 }
@@ -45,25 +46,34 @@ export function isUMetric(object: Metrics | UMetric): object is UMetric {
  * @returns {UPropertySet} The updated property set
  */
 function updatePropertySet(state: UPropertySet | undefined = {}, propertySet: UPropertySet): UPropertySet {
-    Object.keys(propertySet).forEach((key) => {
+    if (!propertySet || Object.keys(propertySet).length == 0)
+    {
+        return state;
+    }
+
+    return Object.keys(propertySet).reduce((accumulator, key) => {
         const value = propertySet[key];
-        if (value.value) {
-            if (value.type == 'PropertySet') {
-                // @ts-expect-error The data in our store is from a Sparkplug Protobuf. The `type` property defines the data stored in this type, and we can ignore TS type checking here.
-                state[key] = updatePropertySet(state[key].value, value.value);
-            } else {
-                state[key] = {
-
-                    ...state[key],
+        if (value.value && value.type == 'PropertySet') {
+                
+            return {
+                ...accumulator,
+                [key]: {
+                    ...value,
+                    // @ts-expect-error The data in our store is from a Sparkplug Protobuf. The `type` property defines the data stored in this type, and we can ignore TS type checking here.
+                    value: updatePropertySet(accumulator[key].value, value.value)
+                }
+            };
+        } else {
+            return {
+                ...accumulator,
+                [key]: {
                     ...value
-                };
-            }
+                }
+            };
         }
-    });
-
-    return {
-        ...state
-    };
+    
+    }, state);
+    
 }
 
 /**
@@ -105,9 +115,10 @@ function updateMetric(state: Record<string, UMetric>, input: UMetric): Record<st
  * @returns {Record<string, UMetric>}
  */
 function updateMetrics(state: Record<string, UMetric>, metrics: UMetric[] | null | undefined): Record<string, UMetric> {
-    if (!metrics) {
+    if (!metrics || metrics.length == 0) {
         return state;
     }
+
     return metrics.reduce((accumulator, metric) => {
         return updateMetric(accumulator, metric);
     }, state);
@@ -121,12 +132,26 @@ function updateMetrics(state: Record<string, UMetric>, metrics: UMetric[] | null
  * @returns {Record<string, Device>}
  */
 function updateDevice(state: Record<string, Device>, name: string, payload: UPayload): Record<string, Device> {
+    if (state[name])
+    {
+        return {
+            ...state,
+            [name]:
+            {
+                ...state[name],
+                metrics: updateMetrics(state[name].metrics, payload.metrics),
+                lastValidMessage: payload.timestamp || 0
+            }
+        };
+    }
     return {
         ...state,
         [name]:
         {
-            state: state[name] ? state[name].state : PublisherState.Dead,
-            metrics: updateMetrics(state[name] ? state[name].metrics : {}, payload.metrics)
+            
+            state: PublisherState.Dead,
+            metrics: updateMetrics({}, payload.metrics),
+            lastValidMessage: payload.timestamp || 0
         }
     };
 }
@@ -147,6 +172,7 @@ function updateNode(state: Record<string, Node>, name: string, payload: UPayload
                 state: state[name] ? state[name].state : PublisherState.Dead,
                 devices: updateDevice(state[name] ? state[name].devices : {}, device, payload),
                 metrics: state[name] ? state[name].metrics : {},
+                lastValidMessage: state[name] ? state[name].lastValidMessage : 0
             }
         };
     }
@@ -156,7 +182,8 @@ function updateNode(state: Record<string, Node>, name: string, payload: UPayload
         [name]:
         {
             ...(state[name] || { state: PublisherState.Dead, devices: {} }),
-            metrics: updateMetrics(state[name] ? state[name].metrics : {}, payload.metrics)
+            metrics: updateMetrics(state[name] ? state[name].metrics : {}, payload.metrics),
+            lastValidMessage: payload.timestamp || 0
         }
     };
 }
@@ -176,7 +203,8 @@ function birthNode(state: Record<string, Node>, name: string, payload: UPayload)
         {
             state: PublisherState.Alive,
             metrics: updateMetrics({}, payload.metrics),
-            devices: {}
+            devices: {},
+            lastValidMessage: payload.timestamp || 0
         }
     };
 }
@@ -203,7 +231,8 @@ function birthDevice(state: Record<string, Node>, nodeName: string, deviceName: 
                 ...node.devices,
                 [deviceName]: {
                     state: PublisherState.Alive,
-                    metrics: updateMetrics({}, payload.metrics)
+                    metrics: updateMetrics({}, payload.metrics),
+                    lastValidMessage: payload.timestamp || 0
                 }
             }
         }

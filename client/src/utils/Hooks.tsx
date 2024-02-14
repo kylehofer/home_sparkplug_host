@@ -1,6 +1,7 @@
 import {useEffect, useState, useMemo} from 'react';
 import { PublisherState, observeMetrics, observeNodes, observeGroups, observeDevices, observeNode, observeDevice, observeMetric } from '../redux/store';
 import { UMetric } from './sparkplugbpayload';
+import Long from 'long';
 
 /**
  * Utility function to compare an array of keys to a Record
@@ -97,6 +98,39 @@ export function usePublisherState(group: string, node: string, device?: string)
         
         return observeNode(group, node, (publisher) => {
             publisher && setState(publisher.state);
+        });
+    }, []);
+
+    return result;
+}
+
+/**
+ * Gets the Publisher State of a Node/Device (Dead/Alive)
+ * @param group The group where the Node or Device sits
+ * @param node Either the Node to watch, or the Node of the Device
+ * @param {string} [device] If present, the Device to montior
+ * @returns {PublisherState}
+ */
+export function usePublisherTimeStamp(group: string, node: string, device?: string)
+{
+    
+    const [result, setState] = useState<number>(0);
+    useEffect(() => {
+        if (device)
+        {
+            return observeDevice(group, node, device, (publisher) => {
+                publisher && 
+                setState(Long.isLong(publisher.lastValidMessage) ? 
+                    publisher.lastValidMessage.toNumber() : 
+                    publisher.lastValidMessage);
+            });
+        }
+        
+        return observeNode(group, node, (publisher) => {
+            publisher && 
+            setState(Long.isLong(publisher.lastValidMessage) ? 
+                publisher.lastValidMessage.toNumber() : 
+                publisher.lastValidMessage);
         });
     }, []);
 

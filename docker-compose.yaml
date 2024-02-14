@@ -10,7 +10,7 @@ services:
   server:
     container_name: "sparkplug_host"
     restart: unless-stopped
-    command: "./build/home_sparkplug_host $BROKER_ADDRESS"
+    command: "$BROKER_ADDRESS $HOST_ID"
     build: ./server
     ports:
       - "$WEBSOCKET_PORT:9000"
