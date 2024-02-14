@@ -123,6 +123,16 @@ int main(int argc, char *argv[])
         }
     }
 
+    printf("Starting Sparkplug host connecting to: %s with a client_id %s", SERVER_ADDRESS.c_str(), CLIENT_ID.c_str());
+    if (HOST_ID.empty())
+    {
+        printf(".\n");
+    }
+    else
+    {
+        printf(" and with a Primary Host ID of: %s.\n", HOST_ID.c_str());
+    }
+
     SparkplugHost host(SERVER_ADDRESS, CLIENT_ID, HOST_ID);
 
     WebSocketServer server;

@@ -19,7 +19,7 @@ function DeviceAccordion(props: { group: string, node: string, device: string}) 
     const { device, group, node } = props;
     const state = usePublisherState(group, node, device);
 
-    const timestamp = usePublisherTimeStamp(group, node);
+    const timestamp = usePublisherTimeStamp(group, node, device);
 
     const timeDisplay = useMemo(() => {
         return new Date(timestamp).toLocaleString();
