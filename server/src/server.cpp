@@ -171,6 +171,11 @@ int main(int argc, char *argv[])
             for (auto &payload : payloads)
             {
                 appendPayload(message, payload);
+                if (payload.payload)
+                {
+                    free_payload(payload.payload);
+                    free(payload.payload);
+                }
             }
 
             server.send(message, action.connection);
@@ -229,6 +234,11 @@ int main(int argc, char *argv[])
             for (auto &payload : payloads)
             {
                 appendPayload(message, payload);
+                if (payload.payload)
+                {
+                    free_payload(payload.payload);
+                    free(payload.payload);
+                }
             }
 
             server.send(message);
